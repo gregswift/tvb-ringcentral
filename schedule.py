@@ -90,10 +90,17 @@ def init_api(config):
     platform.login(config["username"], config["extension"], config["password"])
     return platform
 
+def help():
+    print(f'Usage: {sys.argv[0]} get|standard|enable-saturdays|disable-saturdays|help')
+
+
 if __name__ == '__main__':
     config = get_config()
     #pprint.pprint(config)
     api = init_api(config)
+    force = False
+    if '--force' in sys.argv:
+      force = True
     if len(sys.argv) > 1:
         x = 0
         while True:
@@ -102,11 +109,13 @@ if __name__ == '__main__':
             if sys.argv[1] == 'get':
                 pprint.pprint(get_schedule(api,config))
             if sys.argv[1] == 'enable-saturdays':
-                if this_saturday() not in WHICH_SATURDAYS:
+                if force and (this_saturday() not in WHICH_SATURDAYS):
                     break
                 pprint.pprint(set_schedule(api,config,SATURDAY_SCHEDULE))
             if sys.argv[1] in ['standard', 'disable-saturdays']:
                 pprint.pprint(set_schedule(api,config,STANDARD_SCHEDULE))
             x += 1
         if 'help' in sys.argv[1]:
-            print(f'Usage: {sys.argv[0]} get|standard|enable-saturdays|disable-saturdays|help')
+            help()
+    else:
+         help()
