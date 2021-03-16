@@ -68,18 +68,51 @@ def get_config():
         'username': os.environ.get('RINGCENTRAL_USERNAME', None),
         'password': os.environ.get('RINGCENTRAL_PASSWORD', None),
         'accountid': '~',
-        'extensionid': '~'
+        'queueExtension': os.environ.get('RINCENTRAL_QUEUE_EXTENSION', 1)
     }
 
+def get_extensionid(api, extensionNumber):
+    path = f'/restapi/v1.0/account/{config["accountid"]}/extension?extensionNumber={extensionNumber}'
+    r = api.get(path)
+    for record in r.json_dict()['records']:
+        if record['extensionNumber'] == str(extensionNumber):
+            return record['id']
+    return None
+
 def get_schedule(api, config):
-    #path = f'/restapi/v1.0/account/{config["accountid"]}/extension/{config["extensionid"]}/business-hours'
+    extensionid = get_extensionid(api, config['queueExtension'])
+    results = {}
+    results['company'] = get_company_schedule(api, config)
+    results['queue'] = get_queue_schedule(api, config, extensionid)
+    return results
+
+def get_company_schedule(api, config):
     path = f'/restapi/v1.0/account/{config["accountid"]}/business-hours'
     print(f'Calling {path}')
     r = api.get(path)
     return r.json_dict()
 
+def get_queue_schedule(api, config, extensionid):
+    path = f'/restapi/v1.0/account/{config["accountid"]}/extension/{extensionid}/business-hours'
+    print(f'Calling {path}')
+    r = api.get(path)
+    return r.json_dict()
+
 def set_schedule(api, config, schedule):
+    extensionid = get_extensionid(api, config['queueExtension'])
+    results = {}
+    results['company'] = set_company_schedule(api, config, schedule)
+    results['queue'] = set_queue_schedule(api, config, extensionid, schedule)
+    return results
+
+def set_company_schedule(api, config, schedule):
     path = f'/restapi/v1.0/account/{config["accountid"]}/business-hours'
+    print(f'Calling {path}')
+    r = api.put(path, schedule)
+    return r.json_dict()
+
+def set_queue_schedule(api, config, extensionid, schedule):
+    path = f'/restapi/v1.0/account/{config["accountid"]}/extension/{extensionid}/business-hours'
     print(f'Calling {path}')
     r = api.put(path, schedule)
     return r.json_dict()
