@@ -7,8 +7,7 @@ import sys
 import ringcentral
 
 STANDARD_SCHEDULE={'schedule': {'weeklyRanges': {
-    'monday':    [{'from': '08:30', 'to': '17:30'}],
-    'tuesday':   [{'from': '09:30', 'to': '18:30'}],
+    'tuesday':   [{'from': '09:00', 'to': '17:30'}],
     'wednesday': [{'from': '08:30', 'to': '17:30'}],
     'thursday':  [{'from': '09:30', 'to': '18:30'}],
     'friday':    [{'from': '08:30', 'to': '17:30'}]
